@@ -50,7 +50,7 @@ class Table:
         return indexed
 
     def insert_row(self, columns: list, row: list):
-        if Checker.is_correct_row(row, self.rows, columns) and Checker.is_correct_insert(self.columns, columns):
+        if Checker.is_correct_row(row, self.rows, columns) and Checker.is_correct_insert(self, columns, row):
             columns_id = []
             for column in columns:
                 if column in self.columns:
@@ -88,9 +88,10 @@ class DB:
     def __init__(self, name: str):
         self.name = name
         self.tables = list()
-        if os.path.isfile(db_path + '/' + name):
-            print(f"[!] Error. DB with the name '{name}' already exists.")
-            del self
+        databases.append(self)
+        # if os.path.isfile(db_path + '/' + name):
+        #     print(f"[!] Error. DB with the name '{name}' already exists.")
+        #     del self
 
     def create_table(self, table: Table):
         if table:
@@ -98,7 +99,6 @@ class DB:
                 print(f'[!] Error. Table with title {table.title} already exists.')
                 return 0
             self.tables.append(table)
-            self.save()
             return 1
         print("[!] Error. Empty table given.")
         return 0
@@ -109,10 +109,6 @@ class DB:
             return table[0]
         else:
             print(f"[!] Error. There is no '{table_title}' table in list")
-
-    def save(self):
-        with open(db_path + self.name + '.senseidb', 'wb') as f:
-            pickle.dump(self, f)
 
     def print(self):
         print(f"DB name: {self.name}")
@@ -126,11 +122,6 @@ class DB:
             print(f'\tRows count: {len(table.rows)}')
 
 
-# def save_DB(db: DB, path: str = db_path):
-#     with open(db.name + '.senseidb', 'w') as f:
-#         serialized_db = pickle.dumps(db)
-#         f.write(str(serialized_db))
-
 def get_DB(name: str):
     db = list(filter(lambda x: x.name == name, databases))
     if db:
@@ -139,45 +130,32 @@ def get_DB(name: str):
         print(f"[!] Error. There is no '{name}' database in the list")
 
 
-def load_DBs(path: str = db_path):
-    filenames = os.listdir(path)
-    temp_databases = list()
-
-    for filename in filenames:
-        db_filepath = bytes(db_path + filename, encoding='UTF-8')
-        with open(db_filepath, 'rb') as f:
-            deserialized_db = pickle.load(f)
-            temp_databases.append(deserialized_db)
-
-    return temp_databases
-
-
 def run_DB(db_title: str = 'main_db'):
     global databases
     global db_path
     if not databases:
         item = DB(db_title)
         databases.append(item)
-    
 
-    # custom_path = False
-    # # db_path = input("> Enter path:")
-    # if not db_path:
-    #     db_path = './Databases'
-    # if not os.path.isdir(db_path):
-    #     os.mkdir(db_path)
-    # databases = load_DBs(db_path)
-    # if not databases:
-    #     item = DB(db_title)
-    #     databases.append(item)
+
+#     # custom_path = False
+#     # # db_path = input("> Enter path:")
+#     # if not db_path:
+#     #     db_path = './Databases'
+#     # if not os.path.isdir(db_path):
+#     #     os.mkdir(db_path)
+#     # databases = load_DBs(db_path)
+#     # if not databases:
+#     #     item = DB(db_title)
+#     #     databases.append(item)
 
 
 def print_select(columns: list, values_matrix: list):
     for column in columns:
-        print('[' + column.title + ']' + '  ' * (10 - int(len(column.title)/2)), end='')
+        print('[' + column.title + ']' + '  ' * (10 - int(len(column.title) / 2)), end='')
     print()
     for values_row in values_matrix:
-        [print(' ' + val + '  ' * (10 - int(len(val)/2)), end='') for val in values_row]
+        [print(' ' + val + '  ' * (10 - int(len(val) / 2)), end='') for val in values_row]
         print()
 
 # def upload_DBs(path: str = db_path):
@@ -192,3 +170,25 @@ def print_select(columns: list, values_matrix: list):
 #             item = f.read()
 #             self.__dict__ = pickle.loads(item)
 #             databases.append(self)
+
+
+# def save_DB(db: DB, path: str = db_path):
+#     with open(db.name + '.senseidb', 'w') as f:
+#         serialized_db = pickle.dumps(db)
+#         f.write(str(serialized_db))
+
+# def load_DBs(path: str = db_path):
+#     filenames = os.listdir(path)
+#     temp_databases = list()
+#
+#     for filename in filenames:
+#         db_filepath = bytes(db_path + filename, encoding='UTF-8')
+#         with open(db_filepath, 'rb') as f:
+#             deserialized_db = pickle.load(f)
+#             temp_databases.append(deserialized_db)
+#
+#     return temp_databases
+
+# def save(self):
+#     with open(db_path + self.name + '.senseidb', 'wb') as f:
+#         pickle.dump(self, f)

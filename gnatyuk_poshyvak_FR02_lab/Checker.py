@@ -76,11 +76,11 @@ def is_correct_select(table_columns: list, select_columns: list):
     return True
 
 
-def is_correct_insert(table_columns: list, columns:list):
-    if columns and table_columns:
+def is_correct_insert(table: Table, columns: list, row: list):
+    if columns and table.columns:
         table_column_titles = []
         insert_column_titles = []
-        for item in table_columns:
+        for item in table.columns:
             table_column_titles.append(item.title)
         for item in columns:
             insert_column_titles.append(item.title)
@@ -88,6 +88,34 @@ def is_correct_insert(table_columns: list, columns:list):
         if not set(insert_column_titles).issubset(set(table_column_titles)):
             print("[!] Error. Insert columns are not the subset of table columns.")
             return False
+        elif table.rows:
+            eq_columns = []
+            for column in columns:
+                for t_column in table.columns:
+                    if t_column == column:
+                        eq_columns.append(t_column)
+
+            indexes = []
+            for index in range(len(columns)):
+                if eq_columns[index].indexed:
+                    indexes.append(index)
+            # If there are no indexed values in insert row
+            if not indexes:
+                return True
+
+            table_values = []
+            for row in table.rows:
+                for index in indexes:
+                    table_values.append(row[index])
+
+            row_values = []
+            for index in indexes:
+                row_values.append(row[index])
+
+            if set(row_values) & set(table_values):
+                print("[!] Error. Value duplicate for indexed column.")
+                return False
+
         else:
             return True
     else:

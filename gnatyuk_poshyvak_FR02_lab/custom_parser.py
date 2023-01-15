@@ -18,14 +18,14 @@ def query_formatting(query: str):
 def decompose_query(str_query: str):
     if str_query.lower().startswith('insert'):
         # searches all matches like "(val1, val2, ...)"
-        pattern = re.compile('\([\w, ]+\)')
+        pattern = re.compile('\([\w, "]+\)')
         pattern_table = re.compile('(?<=INTO)\s+\w+\s*(?=\()', re.IGNORECASE)
 
         data = pattern.findall(str_query)
         columns_str = clear_text(data[0], '() ').split(',')
 
         columns = [Column(title) for title in columns_str]
-        values = clear_text(data[1], '()"\'').split(',')
+        values = clear_text(data[1], '()\'').split(',')
         table_title = clear_text(pattern_table.findall(str_query)[0], ' ')
         return QInsert(table_title, columns, values)
 
